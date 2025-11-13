@@ -1,0 +1,191 @@
+openapi: '3.0.0'
+info:
+  version: 1.0.0
+  title: CMHC Personal Wiki API
+  license:
+    name: MIT
+servers:
+  - url: https://api.cmhc-wiki.com/v1
+paths:
+  /wikis:
+    get:
+      summary: List all wikis
+      operationId: listWikis
+      parameters:
+        - name: limit
+          in: query
+          description: How many items to return at one time (max 100)
+          required: false
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: A paged array of wikis
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Wikis'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Create a wiki
+      operationId: createWikis
+      responses:
+        '201':
+          description: Null response
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /wikis/{wikiId}:
+    get:
+      summary: Info for a specific wiki
+      operationId: showWikiById
+      parameters:
+        - name: wikiId
+          in: path
+          required: true
+          description: The id of the wiki to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Expected response to a valid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Wikis'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /pages:
+    get:
+      summary: List all pages across wikis
+      operationId: listPages
+      parameters:
+        - name: wikiId
+          in: query
+          description: Filter pages by wiki identifier
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: How many items to return at one time (max 100)
+          required: false
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: A paged array of pages
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pages'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Create a page
+      operationId: createPages
+      responses:
+        '201':
+          description: Null response
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /pages/{pageId}:
+    get:
+      summary: Info for a specific page
+      operationId: showPageById
+      parameters:
+        - name: pageId
+          in: path
+          required: true
+          description: The id of the page to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Expected response to a valid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pages'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    Wiki:
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        description:
+          type: string
+    Wikis:
+      type: array
+      items:
+        $ref: '#/components/schemas/Wiki'
+    Page:
+      required:
+        - id
+        - title
+      properties:
+        id:
+          type: integer
+          format: int64
+        title:
+          type: string
+        content:
+          type: string
+    Pages:
+      type: array
+      items:
+        $ref: '#/components/schemas/Page'
+    Error:
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
